@@ -1,0 +1,95 @@
+- name: Full Arch Setup with paru, hyprland, packages, etc
+  hosts: all
+  become: true
+  vars:
+    user_name: satori
+    user_home: "/home/satori"
+    aur_packages:
+      - cursor-bin
+      - hyprshot
+      - ttf-ms-fonts
+      - ttf-courier-prime
+
+  tasks:
+
+    - name: Install essential packages
+      pacman:
+        name:
+          - awesome-terminal-fonts
+          - otf-font-awesome
+          - ttf-font-awesome
+          - ttf-jetbrains-mono
+          - ttf-jetbrains-mono-nerd 
+          - base-devel
+          - git
+          - neovim
+          - curl
+          - wget
+          - zsh
+          - sudo
+          - networkmanager
+          - rustup
+          - network-manager-applet
+          - fastfetch
+          - imagemagick # Display images in terminal (maybe not needed)
+          - w3m         # maybe not needed
+          - foliate  # Book Reading app
+          - qbittorrent # Linux download app
+          - vlc
+          - swaync # notification center
+          - yazi # terminal file manager
+          - hyprland # WM Setup
+          - hyprlock # Lock Screen
+          - hypridle
+          - swww     # WM wallpaper
+          - waybar   # WM Status Bar
+          - wl-clipboard # System clipboard
+          - hyprshot # Wrapper for screenshot logic
+          - slurp    # select area of screenshot
+          - jq       # parse and manipulate json
+          - grim     # Takes screenshot
+          - languagetool # Spelling & Grammar
+          - xdg-desktop-portal 
+          - xdg-desktop-portal-wlr 
+          - qt5-wayland 
+          - qt5ct
+          - rofi-wayland
+          - spotify-launcher
+          - zsh-autosuggestions
+          - zsh-syntax-highlighting
+        state: present
+
+    - name: Set Zsh as the default shell for user
+      user:
+        name: "{{ user_name }}"
+        shell: /bin/zsh
+
+    - name: Set Rust default to stable
+      become: false
+      become_user: "{{ user_name }}"
+      shell: rustup default stable
+      environment:
+        PATH: "/home/{{ user_name }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+    - name: Clone paru from AUR
+      become: false
+      become_user: "{{ user_name }}"
+      git:
+        repo: https://aur.archlinux.org/paru.git
+        dest: "{{ user_home }}/paru"
+        clone: yes
+
+    - name: Build and install paru
+      become: false
+      become_user: "{{ user_name }}"
+      shell: makepkg -si --noconfirm
+      args:
+        chdir: "{{ user_home }}/paru"
+        creates: "{{ user_home }}/.local/bin/paru"
+
+    - name: Install AUR packages using paru
+      become: false
+      become_user: "{{ user_name }}"
+      shell: paru -S --noconfirm --needed {{ item }}
+      loop: "{{ aur_packages }}"
+
