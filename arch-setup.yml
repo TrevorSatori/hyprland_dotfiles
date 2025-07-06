@@ -1,5 +1,6 @@
 - name: Full Arch Setup with paru, hyprland, packages, etc
-  hosts: all
+  hosts: localhost
+  connection: local
   become: true
   vars:
     user_name: satori
@@ -56,6 +57,8 @@
           - qt5ct
           - rofi-wayland
           - spotify-launcher
+          - gnome-disks
+          - polkit-gnome # Used for disks flashing
           - zsh-autosuggestions
           - zsh-syntax-highlighting
         state: present
