@@ -46,6 +46,7 @@ path+=('/home/satori/bin')
 path+=("$HOME/.npm-global/bin")
 path+=("$HOME/go/bin")
 
-
+export EDITOR=nvim
+export SUDO_EDITOR=nvim
 alias vim="nvim"
 

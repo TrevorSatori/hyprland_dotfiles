@@ -10,12 +10,44 @@
       - hyprshot
       - ttf-ms-fonts
       - ttf-courier-prime
+      - brave-bin
+      - zen-browser
+      - mullvad-vpn
+
 
   tasks:
+
+      # Move all contents from config_files to .config
+    - name: Move all config files and directories to the .config directory
+      copy:
+        src: "{{ user_home }}/hyprland_dotfiles/config_files/"
+        dest: "{{ user_home }}/.config/"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0755'
+        recurse: yes
+
+      # Move all .zsh* files to the home directory
+    - name: Move all .zsh files to the home directory
+      find:
+        paths: "{{ user_home }}/hyprland_dotfiles"
+        patterns: ".zsh*"
+      register: zsh_files
+
+    - name: Copy all found .zsh files to the home directory
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ user_home }}/{{ item.path | basename }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0644'
+      with_items: "{{ zsh_files.files }}"
+      when: zsh_files.matched > 0
 
     - name: Install essential packages
       pacman:
         name:
+          - kitty
           - awesome-terminal-fonts
           - otf-font-awesome
           - ttf-font-awesome
@@ -25,10 +57,12 @@
           - base-devel
           - git
           - neovim
+          - less
           - curl
           - wget
           - zsh
           - sudo
+          - steam
           - networkmanager
           - rustup
           - network-manager-applet
@@ -57,7 +91,7 @@
           - qt5ct
           - rofi-wayland
           - spotify-launcher
-          - gnome-disks
+          - gnome-disk-utility
           - polkit-gnome # Used for disks flashing
           - zsh-autosuggestions
           - zsh-syntax-highlighting
@@ -74,6 +108,31 @@
       shell: rustup default stable
       environment:
         PATH: "/home/{{ user_name }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+    - name: Add safe directory for paru repository
+      become: false
+      become_user: "{{ user_name }}"
+      shell: git config --global --add safe.directory /home/{{ user_name }}/paru
+
+      # Ensure paru directory exists and has correct permissions
+    - name: Ensure paru directory exists and has correct permissions
+      file:
+        path: "{{ user_home }}/paru"
+        state: directory
+        mode: '0755'
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+
+    # Ensure .git/FETCH_HEAD is writable by the user
+    - name: Ensure .git/FETCH_HEAD is writable by the user
+      file:
+        path: "{{ user_home }}/paru/.git/FETCH_HEAD"
+        state: touch
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0644'
+      when: ansible_facts['os_family'] == 'Linux'
+
 
     - name: Clone paru from AUR
       become: false
