@@ -44,12 +44,33 @@
       with_items: "{{ zsh_files.files }}"
       when: zsh_files.matched > 0
 
+    - name: Ensure the gtk-4.0 directory exists in .config
+      file:
+        path: "{{ user_home }}/.config/gtk-4.0"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0755'
+
+    - name: Copy all themes from hyprland_dotfiles to .config
+      copy:
+        src: "{{ user_home }}/hyprland_dotfiles/themes/gtk-4.0/"
+        dest: "{{ user_home }}/.config/gtk-4.0/"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0755'
+        recurse: yes
+      become: false
+      become_user: "{{ user_name }}"
+
+
     - name: Install essential packages
       pacman:
         name:
-          - btrfs-progs
-          - exfatprogs
-          - dosfstools
+          - btrfs-progs # fs
+          - exfatprogs  # fs
+          - dosfstools  # fs
+          - nwg-look    # apply-themes
           - kitty
           - thunar
           - awesome-terminal-fonts
