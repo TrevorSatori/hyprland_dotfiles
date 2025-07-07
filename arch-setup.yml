@@ -47,7 +47,11 @@
     - name: Install essential packages
       pacman:
         name:
+          - btrfs-progs
+          - exfatprogs
+          - dosfstools
           - kitty
+          - thunar
           - awesome-terminal-fonts
           - otf-font-awesome
           - ttf-font-awesome
