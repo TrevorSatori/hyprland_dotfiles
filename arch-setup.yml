@@ -11,8 +11,8 @@
       - ttf-ms-fonts
       - ttf-courier-prime
       - brave-bin
-      - zen-browser
-      - mullvad-vpn
+      - zen-browser-bin
+      - mullvad-vpn-bin
 
 
   tasks:
