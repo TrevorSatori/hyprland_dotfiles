@@ -71,6 +71,9 @@
           - exfatprogs  # fs
           - dosfstools  # fs
           - nwg-look    # apply-themes
+          - docker
+          - docker-compose
+          - gvfs        # GUI usb stick
           - kitty
           - thunar
           - awesome-terminal-fonts
